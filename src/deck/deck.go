@@ -13,17 +13,15 @@ type (
 	}
 	// Card represents an individual playing card.
 	Card struct {
-		suite     string
-		number    int
-		character string
-		flipped   bool
+		suite   string
+		rank  int
+		flipped bool
 	}
 )
 
 var (
-	suites     = [4]string{"diamonds", "spades", "clubs", "hearts"}
-	numbers    = [9]int{2, 3, 4, 5, 6, 7, 8, 9, 10}
-	characters = [4]string{"jack", "king", "queen", "ace"}
+	suites  = [4]string{"diamonds", "spades", "clubs", "hearts"}
+	numbers = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 )
 
 // GenDeck method is used to generate a full deck of cards.
@@ -112,6 +110,27 @@ func (c *Card) Read() string {
 func DisplayCards(c []*Card) error {
 	if len(c) > 10 {
 		return fmt.Errorf("Too many cards to display(%v)", len(c))
+	}
+	for i := 0; i < 5; i++ {
+		for _, card := range c {
+			var rank string
+
+			switch {
+			case card.rank < 10 :
+				rank := 
+			}
+
+			switch {
+			case i == 0:
+				fmt.Printf(" ******** ")
+			case i == 1:
+				fmt.Printf(" *  %v   * ", rank)
+			case i == 2:
+				fmt.Printf(" *  %v  * ", suite)
+			}
+
+		}
+
 	}
 	for range c {
 		fmt.Printf(" ******** ")
