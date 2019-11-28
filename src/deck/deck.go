@@ -32,10 +32,6 @@ func GenDeck() *Deck {
 			newCard := Card{suite: n, number: c}
 			d.Cards = append(d.Cards, &newCard)
 		}
-		for _, c := range characters {
-			newCard := Card{suite: n, character: c}
-			d.Cards = append(d.Cards, &newCard)
-		}
 	}
 	return &d
 }
