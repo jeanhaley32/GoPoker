@@ -46,3 +46,39 @@ func GenPlayer() Player {
 	return *newPlayer
 
 }
+
+func (p *Player) removeCard(i int) error {
+	cardCount := len(p.Hand)
+	if cardCount > 0 {
+		p.Hand[i] = p.Hand[cardCount-1]
+		p.Hand = p.Hand[:cardCount-1]
+		return nil
+	}
+	return fmt.Errorf("cannot remove card(card count %v", cardCount)
+}
+
+// DisplayCards displays cards in players hand as ascii representations.
+func (p *Player) DisplayCards() error {
+	if len(p.Hand) > 10 {
+		return fmt.Errorf("Too many cards to display(%v)", len(p.Hand))
+	}
+	for i := 0; i < 5; i++ {
+		for _, card := range p.Hand {
+			rank := string(cardIndex[card.rank][0])
+			suit := string(card.suite[0])
+			switch {
+			case i == 0:
+				fmt.Printf(" ******** \n")
+			case i == 1:
+				fmt.Printf(" * %v    * \n", rank)
+			case i == 2:
+				fmt.Printf(" *  %v  * \n", suit)
+			case i == 3:
+				fmt.Printf(" *    %v * \n", rank)
+			case i == 4:
+				fmt.Printf(" ********** \n")
+			}
+		}
+	}
+	return nil
+}

@@ -14,14 +14,29 @@ type (
 	// Card represents an individual playing card.
 	Card struct {
 		suite   string
-		rank  int
+		rank    int
 		flipped bool
 	}
 )
 
 var (
-	suites  = [4]string{"diamonds", "spades", "clubs", "hearts"}
-	numbers = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+	suites    = [4]string{"diamonds", "spades", "clubs", "hearts"}
+	numbers   = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+	cardIndex = map[int]string{
+		2:  "two",
+		3:  "three",
+		4:  "four",
+		5:  "five",
+		6:  "six",
+		7:  "seven",
+		8:  "eight",
+		9:  "nine",
+		10: "ten",
+		11: "jack",
+		12: "queen",
+		13: "king",
+		14: "ace",
+	}
 )
 
 // GenDeck method is used to generate a full deck of cards.
@@ -29,7 +44,8 @@ func GenDeck() *Deck {
 	var d Deck
 	for _, n := range suites {
 		for _, c := range numbers {
-			newCard := Card{suite: n, number: c}
+			newCard := Card{suite: n, rank: c}
+			newCard.flipped = true
 			d.Cards = append(d.Cards, &newCard)
 		}
 	}
@@ -67,10 +83,9 @@ func (d *Deck) Count() int {
 	return len(d.Cards)
 }
 
-// Hand returns a hand of cards, with card count  of variable h, removing each card it returns
+// GetHand returns a hand of cards, with card count  of variable h, removing each card it returns
 // from Deck.
-func (d *Deck) Hand(h int) ([]*Card, error) {
-
+func (d *Deck) GetHand(h int) ([]*Card, error) {
 	var hand []*Card
 	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
@@ -93,13 +108,20 @@ func (d *Deck) ForEachCard(action func(c *Card) error) error {
 	return nil
 }
 
+// Shuffle func shuffles a deck of cards.
+func (d *Deck) Shuffle() {
+	rand.Seed(time.Now().UTC().UnixNano())
+	for range d.Cards {
+		rand.Shuffle(len(d.Cards), func(i, j int) {
+			d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
+		})
+	}
+}
+
 // ********** CARD METHODS***********
 // Read method returns the card type as a string.
 func (c *Card) Read() string {
-	if c.character != "" {
-		return fmt.Sprintf("%v of %v", c.character, c.suite)
-	}
-	return fmt.Sprintf("%v of %v", c.number, c.suite)
+	return fmt.Sprintf("%v of %v", cardIndex[c.rank], c.suite)
 }
 
 // DisplayCards Displays up to ten cards in a row.
@@ -109,65 +131,21 @@ func DisplayCards(c []*Card) error {
 	}
 	for i := 0; i < 5; i++ {
 		for _, card := range c {
-			var rank string
-
-			switch {
-			case card.rank < 10 :
-				rank := 
-			}
-
+			rank := string(cardIndex[card.rank][0])
+			suit := string(card.suite[0])
 			switch {
 			case i == 0:
-				fmt.Printf(" ******** ")
+				fmt.Printf(" ******** \n")
 			case i == 1:
-				fmt.Printf(" *  %v   * ", rank)
+				fmt.Printf(" * %v    * \n", rank)
 			case i == 2:
-				fmt.Printf(" *  %v  * ", suite)
+				fmt.Printf(" *  %v  * \n", suit)
+			case i == 3:
+				fmt.Printf(" *    %v * \n", rank)
+			case i == 4:
+				fmt.Printf(" ********** \n")
 			}
-
-		}
-
-	}
-	for range c {
-		fmt.Printf(" ******** ")
-	}
-	fmt.Println()
-
-	for _, card := range c {
-		fmt.Printf(" * %s    * ", string(card.suite[0]))
-	}
-	fmt.Println()
-
-	for _, card := range c {
-		switch {
-		case card.number == 0:
-			fmt.Printf(" *  %v   * ", string(card.character[0]))
-		case card.number > 9:
-			fmt.Printf(" *  %v  * ", card.number)
-		default:
-			fmt.Printf(" *  %v   * ", card.number)
 		}
 	}
-
-	fmt.Println()
-	for _, card := range c {
-		fmt.Printf(" *    %s * ", string(card.suite[0]))
-	}
-	fmt.Println()
-	for range c {
-		fmt.Printf(" ******** ")
-	}
-	fmt.Println()
-
 	return nil
-}
-
-// Shuffle func shuffles a deck of cards.
-func (d *Deck) Shuffle() {
-	rand.Seed(time.Now().UTC().UnixNano())
-	for range d.Cards {
-		rand.Shuffle(len(d.Cards), func(i, j int) {
-			d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
-		})
-	}
 }
