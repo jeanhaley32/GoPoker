@@ -10,7 +10,7 @@ type (
 	// Player represents an individual player with name and a hand of cards.
 	Player struct {
 		Name string
-		Hand []Card
+		Hand []*Card
 	}
 
 	// Dealer represents the dealer, with a deck of cards, and the table.
@@ -68,17 +68,18 @@ func (p *Player) DisplayCards() error {
 			suit := string(card.suite[0])
 			switch {
 			case i == 0:
-				fmt.Printf(" ******** \n")
+				fmt.Printf(" ******** ")
 			case i == 1:
-				fmt.Printf(" * %v    * \n", rank)
+				fmt.Printf(" * %v    * ", rank)
 			case i == 2:
-				fmt.Printf(" *  %v  * \n", suit)
+				fmt.Printf(" *   %v  * ", suit)
 			case i == 3:
-				fmt.Printf(" *    %v * \n", rank)
+				fmt.Printf(" *    %v * ", rank)
 			case i == 4:
-				fmt.Printf(" ********** \n")
+				fmt.Printf(" ******** ")
 			}
 		}
+		fmt.Println()
 	}
 	return nil
 }

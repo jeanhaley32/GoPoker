@@ -131,8 +131,19 @@ func DisplayCards(c []*Card) error {
 	}
 	for i := 0; i < 5; i++ {
 		for _, card := range c {
-			rank := string(cardIndex[card.rank][0])
 			suit := string(card.suite[0])
+			var rank string
+
+			switch {
+			case card.rank > 11:
+				rank = string(cardIndex[card.rank][0])
+			case card.flipped == true:
+				rank = "?"
+				suit = "?"
+			default:
+				rank = string(card.rank)
+			}
+
 			switch {
 			case i == 0:
 				fmt.Printf(" ******** \n")

@@ -5,7 +5,6 @@ import (
 	"deck"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -44,11 +43,11 @@ func main() {
 	var err error
 	dealer := deck.GenDealer()
 	player := deck.GenPlayer()
-	player.Hand, err = &dealer.Deck.GetHand(*handCount)
+	player.Hand, err = dealer.Deck.GetHand(5)
 	if err != nil {
-		log.Panic(err)
+		fmt.Println(err)
 	}
-
+	player.DisplayCards()
 }
 
 // users to generate starting dealer, and players.
