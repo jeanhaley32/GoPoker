@@ -22,10 +22,20 @@ type (
 
 	// Hand represents an individual hand, and its value.
 	Hand struct {
-		name  string
-		value int
+		name     string
+		value    int
+		suit     string
+		highCard int
 	}
+
 )
+
+
+	m = make(handRanking map[string]int) 
+
+
+
+
 
 // GenDealer generates a new Dealer with a fresh deck of cards.
 func GenDealer() Dealer {
@@ -83,8 +93,8 @@ func (p *Player) FlipCards() bool {
 
 }
 
-// GetHands take in a list of cards, and figureds out what hands exist within that list, 
-// return as many matches as it finds as a set fo []hands, each hand contains the name 
+// GetHands take in a list of cards, and figureds out what hands exist within that list,
+// return as many matches as it finds as a set fo []hands, each hand contains the name
 // of the matching hand and that hands value.
 func GetHands(c []*Card) ([]Hand, error) {
 
@@ -101,10 +111,11 @@ func GetHands(c []*Card) ([]Hand, error) {
 	// two pair
 	// one pair
 	// high card
+
 	var hands []Hand
 	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
 
-	royalFlush := []int{14, 13, 12, 11, 10}
+
 
 	for _, card := range c {
 		switch {
@@ -124,6 +135,20 @@ func GetHands(c []*Card) ([]Hand, error) {
 
 	}
 
+	royalFlush := []int{14, 13, 12, 11, 10}
+	for key, element := range suitSorted {
+		switch {
+		case Equal(element, royalFlush):
+			hands = append(hands, Hand{
+				name:     "royal flush",
+				value:    handRanking["royal flush"],
+				suit:     key,
+				highCard: element[len(element)-1],
+			})
+
+		}
+	}
+
 	for key, element := range suitSorted {
 		for _, r := range element {
 			fmt.Printf("%v of %v\n", cardIndex[r], key)
@@ -131,4 +156,18 @@ func GetHands(c []*Card) ([]Hand, error) {
 	}
 
 	return nil, nil
+}
+
+// Equal tells whether a and b contain the same elements.
+// A nil argument is equivalent to an empty slice.
+func Equal(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
