@@ -83,8 +83,9 @@ func (p *Player) FlipCards() bool {
 
 }
 
-// GetHands matches, takes in players hand, and dealers hand, then derives
-// a list of valid poker hands from the combination of both.
+// GetHands take in a list of cards, and figureds out what hands exist within that list, 
+// return as many matches as it finds as a set fo []hands, each hand contains the name 
+// of the matching hand and that hands value.
 func GetHands(c []*Card) ([]Hand, error) {
 
 	// sort references
