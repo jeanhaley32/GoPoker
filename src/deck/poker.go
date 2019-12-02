@@ -75,3 +75,26 @@ func (p *Player) FlipCards() bool {
 	return false
 
 }
+
+// GetHands matches, takes in players hand, and dealers hand, then derives
+// a list of valid poker hands from the combination of both.
+func GetHands(p, d []*Card) ([]string, error) {
+
+	// royal flush
+	cards := append(p, d...)
+	for _, card := range cards {
+		rank := card.Rank
+		suite := card.Suite
+
+	}
+	// straight flush
+	// four of a kind
+	// full house
+	// flush
+	// straight
+	// three of a kind
+	// two pair
+	// one pair
+	// high card
+	return nil, nil
+}
