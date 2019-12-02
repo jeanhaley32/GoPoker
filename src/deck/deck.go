@@ -3,6 +3,7 @@ package deck
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -13,15 +14,15 @@ type (
 	}
 	// Card represents an individual playing card.
 	Card struct {
-		suite   string
-		rank    int
-		flipped bool
+		Suite   string
+		Rank    int
+		Flipped bool
 	}
 )
 
 var (
 	suites    = [4]string{"diamonds", "spades", "clubs", "hearts"}
-	numbers   = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
+	ranks     = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 	cardIndex = map[int]string{
 		2:  "two",
 		3:  "three",
@@ -43,9 +44,9 @@ var (
 func GenDeck() *Deck {
 	var d Deck
 	for _, n := range suites {
-		for _, c := range numbers {
-			newCard := Card{suite: n, rank: c}
-			newCard.flipped = true
+		for _, c := range ranks {
+			newCard := Card{Suite: n, Rank: c}
+			newCard.Flipped = true
 			d.Cards = append(d.Cards, &newCard)
 		}
 	}
@@ -121,42 +122,44 @@ func (d *Deck) Shuffle() {
 // ********** CARD METHODS***********
 // Read method returns the card type as a string.
 func (c *Card) Read() string {
-	return fmt.Sprintf("%v of %v", cardIndex[c.rank], c.suite)
+	return fmt.Sprintf("%v of %v", cardIndex[c.Rank], c.Suite)
 }
 
-// DisplayCards Displays up to ten cards in a row.
+// DisplayCards displays cards in players hand as ascii representations.
 func DisplayCards(c []*Card) error {
 	if len(c) > 10 {
 		return fmt.Errorf("Too many cards to display(%v)", len(c))
 	}
 	for i := 0; i < 5; i++ {
 		for _, card := range c {
-			suit := string(card.suite[0])
-			var rank string
+			num := strconv.FormatInt(int64(card.Rank), 10)
+			suit := string(card.Suite[0])
+			rank := string(num) + " "
 
 			switch {
-			case card.rank > 11:
-				rank = string(cardIndex[card.rank][0])
-			case card.flipped == true:
-				rank = "?"
+			case card.Flipped == true:
+				rank = "  "
 				suit = "?"
-			default:
-				rank = string(card.rank)
+			case card.Rank >= 11:
+				rank = string(cardIndex[card.Rank][0]) + " "
+			case card.Rank == 10:
+				rank = "10"
 			}
 
 			switch {
 			case i == 0:
-				fmt.Printf(" ******** \n")
+				fmt.Printf(" ******** ")
 			case i == 1:
-				fmt.Printf(" * %v    * \n", rank)
+				fmt.Printf(" * %v   * ", rank)
 			case i == 2:
-				fmt.Printf(" *  %v  * \n", suit)
+				fmt.Printf(" *   %v  * ", suit)
 			case i == 3:
-				fmt.Printf(" *    %v * \n", rank)
+				fmt.Printf(" *    %v* ", rank)
 			case i == 4:
-				fmt.Printf(" ********** \n")
+				fmt.Printf(" ******** ")
 			}
 		}
+		fmt.Println()
 	}
 	return nil
 }

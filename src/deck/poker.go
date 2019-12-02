@@ -24,6 +24,7 @@ type (
 func GenDealer() Dealer {
 	var newDealer = new(Dealer)
 	newDealer.Deck = GenDeck()
+	newDealer.Deck.Shuffle()
 	return *newDealer
 }
 
@@ -57,29 +58,20 @@ func (p *Player) removeCard(i int) error {
 	return fmt.Errorf("cannot remove card(card count %v", cardCount)
 }
 
-// DisplayCards displays cards in players hand as ascii representations.
-func (p *Player) DisplayCards() error {
-	if len(p.Hand) > 10 {
-		return fmt.Errorf("Too many cards to display(%v)", len(p.Hand))
+// FlipCards flips all cards in a players deck.
+// will flip all cards based on the inverse of the
+// flipped status of the first card.
+func (p *Player) FlipCards() bool {
+	var flip bool
+	if p.Hand[0].Flipped == false {
+		flip = true
 	}
-	for i := 0; i < 5; i++ {
-		for _, card := range p.Hand {
-			rank := string(cardIndex[card.rank][0])
-			suit := string(card.suite[0])
-			switch {
-			case i == 0:
-				fmt.Printf(" ******** ")
-			case i == 1:
-				fmt.Printf(" * %v    * ", rank)
-			case i == 2:
-				fmt.Printf(" *   %v  * ", suit)
-			case i == 3:
-				fmt.Printf(" *    %v * ", rank)
-			case i == 4:
-				fmt.Printf(" ******** ")
-			}
-		}
-		fmt.Println()
+	for _, card := range p.Hand {
+		card.Flipped = flip
 	}
-	return nil
+	if flip == false {
+		return true
+	}
+	return false
+
 }
