@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 )
 
 type (
@@ -17,6 +18,12 @@ type (
 	Dealer struct {
 		Deck  *Deck
 		Table []Card
+	}
+
+	// Hand represents an individual hand, and its value.
+	Hand struct {
+		name  string
+		value int
 	}
 )
 
@@ -78,15 +85,12 @@ func (p *Player) FlipCards() bool {
 
 // GetHands matches, takes in players hand, and dealers hand, then derives
 // a list of valid poker hands from the combination of both.
-func GetHands(p, d []*Card) ([]string, error) {
+func GetHands(c []*Card) ([]Hand, error) {
 
-	// royal flush
-	cards := append(p, d...)
-	for _, card := range cards {
-		rank := card.Rank
-		suite := card.Suite
+	// sort references
+	//sort.Slice(c, func(i, j int) bool { return c[i].Suite < c[j].Suite })
+	//sort.Slice(c, func(i, j int) bool { return c[i].Rank < c[j].Rank })
 
-	}
 	// straight flush
 	// four of a kind
 	// full house
@@ -96,5 +100,34 @@ func GetHands(p, d []*Card) ([]string, error) {
 	// two pair
 	// one pair
 	// high card
+	var hands []Hand
+	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
+
+	royalFlush := []int{14, 13, 12, 11, 10}
+
+	for _, card := range c {
+		switch {
+		case card.Suite == "clubs":
+			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
+		case card.Suite == "diamonds":
+			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
+		case card.Suite == "hearts":
+			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
+		case card.Suite == "spades":
+			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
+		}
+	}
+
+	for key, element := range suitSorted {
+		sort.Slice(element, func(i, j int) bool { return suitSorted[key][i] < suitSorted[key][j] })
+
+	}
+
+	for key, element := range suitSorted {
+		for _, r := range element {
+			fmt.Printf("%v of %v\n", cardIndex[r], key)
+		}
+	}
+
 	return nil, nil
 }

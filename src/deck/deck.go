@@ -119,7 +119,6 @@ func (d *Deck) Shuffle() {
 	}
 }
 
-// ********** CARD METHODS***********
 // Read method returns the card type as a string.
 func (c *Card) Read() string {
 	return fmt.Sprintf("%v of %v", cardIndex[c.Rank], c.Suite)
