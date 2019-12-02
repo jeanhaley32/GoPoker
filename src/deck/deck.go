@@ -100,6 +100,7 @@ func (d *Deck) GetHand(h int) ([]*Card, error) {
 }
 
 // ForEachCard allows an action to be executed on each card in a Deck.
+// I have not utilized this method yet, and in the future I may remove it. 
 func (d *Deck) ForEachCard(action func(c *Card) error) error {
 	for _, card := range d.Cards {
 		if err := action(card); err != nil {
