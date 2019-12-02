@@ -5,6 +5,7 @@ import (
 	"deck"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -47,7 +48,28 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	player.DisplayCards()
+	deck.DisplayCards(player.Hand)
+
+	answer := new(string)
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Println("would you like to reveal your cards?")
+		*answer, err = reader.ReadString('\n')
+		if err != nil {
+			log.Panicf("Failed to obtain user input: %w", err)
+		}
+		if *answer == "yes\n" || *answer == "no\n" {
+			break
+		}
+		continue
+	}
+	switch {
+	case *answer == "yes\n":
+		_ = player.FlipCards()
+		deck.DisplayCards(player.Hand)
+	case *answer == "no\n":
+		fmt.Println("Byyyyeeeee")
+	}
 }
 
 // users to generate starting dealer, and players.
