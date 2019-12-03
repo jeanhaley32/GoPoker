@@ -27,15 +27,7 @@ type (
 		suit     string
 		highCard int
 	}
-
 )
-
-
-	m = make(handRanking map[string]int) 
-
-
-
-
 
 // GenDealer generates a new Dealer with a fresh deck of cards.
 func GenDealer() Dealer {
@@ -102,20 +94,21 @@ func GetHands(c []*Card) ([]Hand, error) {
 	//sort.Slice(c, func(i, j int) bool { return c[i].Suite < c[j].Suite })
 	//sort.Slice(c, func(i, j int) bool { return c[i].Rank < c[j].Rank })
 
-	// straight flush
-	// four of a kind
-	// full house
-	// flush
-	// straight
-	// three of a kind
-	// two pair
-	// one pair
-	// high card
+	handValue := map[string]int{
+		"royal flush":     10,
+		"straight flush":  9,
+		"four of a kind":  8,
+		"full house":      7,
+		"flush":           6,
+		"straight":        5,
+		"three of a kind": 4,
+		"two pair":        3,
+		"one pair":        2,
+		"high card":       1,
+	}
 
 	var hands []Hand
 	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
-
-
 
 	for _, card := range c {
 		switch {
@@ -135,27 +128,60 @@ func GetHands(c []*Card) ([]Hand, error) {
 
 	}
 
-	royalFlush := []int{14, 13, 12, 11, 10}
-	for key, element := range suitSorted {
+	for suit, ranks := range suitSorted {
+
+		testCase := ranks
+		if len(ranks) > 10 {
+			testCase := testcase[0:5]
+		}
+
+		for i := len(testCase); i > 0; i-- {
+
+		}
+
 		switch {
-		case Equal(element, royalFlush):
+		case royalFlush(ranks):
 			hands = append(hands, Hand{
 				name:     "royal flush",
-				value:    handRanking["royal flush"],
-				suit:     key,
-				highCard: element[len(element)-1],
+				value:    handValue["royal flush"],
+				suit:     suit,
+				highCard: ranks[len(ranks)-1],
 			})
+		}
+
+		for key, element := range suitSorted {
+			for _, r := range element {
+				fmt.Printf("%v of %v\n", cardIndex[r], key)
+			}
+		}
+
+		return nil, nil
+	}
+}
+
+func royalFlush(c []int) bool {
+	royalFlush := []int{10, 11, 12, 13, 14}
+	if len(c) > 5 {
+		c = c[2:]
+	}
+	if Equal(c, royalFlush) {
+		return true
+	}
+	return false
+}
+
+func flush(c []int) bool {
+	if len(c) > 5 {
+		c = c[2:]
+	}
+	prev := 0
+	for r := range c {
+		if r-prev != 1 {
 
 		}
 	}
 
-	for key, element := range suitSorted {
-		for _, r := range element {
-			fmt.Printf("%v of %v\n", cardIndex[r], key)
-		}
-	}
-
-	return nil, nil
+	return true
 }
 
 // Equal tells whether a and b contain the same elements.
