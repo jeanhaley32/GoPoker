@@ -9,9 +9,10 @@ import (
 
 type (
 	// CardCollection represents any list of cards.
-	// I.E. Deck, Hand etc.
+	// I.E. deck, hand etc.
 	CardCollection struct {
-		Cards []*Card
+		Cards  []Card
+		isDeck bool
 	}
 	// Card represents an individual card
 	Card struct {
@@ -41,17 +42,30 @@ var (
 	}
 )
 
+// TO-DO; reconsider how this works. it may not be the best method for doing this. Maybe
+// utilizing interfaces would be a more robust solution.
+
+// MakeDeck turns a CardCollection into a Deck via switching the isDeck bool
+// to true. This allows you to run genDeck.
+func (c *CardCollection) MakeDeck() {
+	c.isDeck = true
+}
+
 // GenDeck method is used to generate a full deck of cards.
-func GenDeck() *CardCollection {
-	var d CardCollection
-	for _, n := range suites {
-		for _, c := range ranks {
-			newCard := Card{Suite: n, Rank: c}
-			newCard.Flipped = true
-			d.Cards = append(d.Cards, &newCard)
+func (c *CardCollection) GenDeck() error {
+	if c.isDeck {
+		for _, s := range suites {
+			for _, r := range ranks {
+				var newCard Card
+				newCard.Suite = s
+				newCard.Rank = r
+				newCard.Flipped = true
+				c.Cards = append(c.Cards, newCard)
+			}
 		}
+		return nil
 	}
-	return &d
+	return fmt.Errorf("Cannot Generate Deck on non-Deck item")
 }
 
 // DealCard Method pulls a card from a deck of cards.
@@ -65,12 +79,12 @@ func (c *CardCollection) DealCard() (Card, error) {
 	index := rand.Intn(len(c.Cards))
 	index -= index
 
-	*newCard = *c.Cards[index]
+	newCard = &c.Cards[index]
 	c.removeCard(index)
 	return *newCard, nil
 }
 
-func (c *CardCollection) removeCard(i int) error {
+func (c CardCollection) removeCard(i int) error {
 	cardCount := len(c.Cards)
 	if cardCount > 0 {
 		c.Cards[i] = c.Cards[cardCount-1]
@@ -87,15 +101,15 @@ func (c *CardCollection) Count() int {
 
 // GetHand returns a hand of cards, with card count  of variable h, removing each card it returns
 // from Deck.
-func (c *CardCollection) GetHand(h int) ([]*Card, error) {
-	var hand []*Card
+func (c CardCollection) GetHand(h int) (CardCollection, error) {
+	var hand CardCollection
 	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
 		newCard, err := c.DealCard()
 		if err != nil {
 			return hand, fmt.Errorf("Can't provide a hand of cards %v", err)
 		}
-		hand = append(hand, &newCard)
+		hand.Cards = append(hand.Cards, newCard)
 	}
 	return hand, nil
 }
@@ -104,7 +118,7 @@ func (c *CardCollection) GetHand(h int) ([]*Card, error) {
 // I have not utilized this method yet, and in the future I may remove it.
 func (c *CardCollection) ForEachCard(action func(c *Card) error) error {
 	for _, card := range c.Cards {
-		if err := action(card); err != nil {
+		if err := action(&card); err != nil {
 			return err
 		}
 	}
@@ -127,12 +141,12 @@ func (c *Card) Read() string {
 }
 
 // DisplayCards displays cards in players hand as ascii representations.
-func DisplayCards(c []*Card) error {
-	if len(c) > 10 {
-		return fmt.Errorf("Too many cards to display(%v)", len(c))
+func (c *CardCollection) DisplayCards() error {
+	if len(c.Cards) > 10 {
+		return fmt.Errorf("Too many cards to display(%v)", len(c.Cards))
 	}
 	for i := 0; i < 5; i++ {
-		for _, card := range c {
+		for _, card := range c.Cards {
 			num := strconv.FormatInt(int64(card.Rank), 10)
 			suit := string(card.Suite[0])
 			rank := string(num) + " "
@@ -163,4 +177,19 @@ func DisplayCards(c []*Card) error {
 		fmt.Println()
 	}
 	return nil
+}
+
+// FlipCards flips all cards in a players deck.
+// will flip all cards based on the inverse of the
+// flipped status of the first card.
+func (c *CardCollection) FlipCards() bool {
+	var flip bool
+	if c.Cards[0].Flipped == false {
+		flip = true
+	}
+	for _, card := range c.Cards {
+		card.Flipped = flip
+	}
+	return flip
+
 }

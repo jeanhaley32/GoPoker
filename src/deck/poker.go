@@ -17,7 +17,7 @@ type (
 
 	// Dealer represents the dealer, with a deck of cards, and the table.
 	Dealer struct {
-		Deck    *CardCollection
+		Deck    CardCollection
 		Players []*Player
 		Table   []Card
 	}
@@ -33,15 +33,16 @@ type (
 
 // GenDealer generates a new Dealer with a fresh deck of cards.
 func GenDealer() Dealer {
-	var newDealer *Dealer
-	newDealer.Deck = GenDeck()
+	var newDealer Dealer
+	newDealer.Deck.MakeDeck()
+	newDealer.Deck.GenDeck()
 	newDealer.Deck.Shuffle()
-	return *newDealer
+	return newDealer
 }
 
 // GenPlayer generates a new player object tied to a dealer.
 func (d *Dealer) GenPlayer() {
-	var player *Player
+	var player Player
 	player.Dealer = d
 	for {
 		reader := bufio.NewReader(os.Stdin)
@@ -56,22 +57,7 @@ func (d *Dealer) GenPlayer() {
 			break
 		}
 	}
-	d.Players = append(d.Players, player)
-
-}
-
-// FlipCards flips all cards in a players deck.
-// will flip all cards based on the inverse of the
-// flipped status of the first card.
-func (p *Player) FlipCards() bool {
-	var flip bool
-	if p.Hand.Cards[0].Flipped == false {
-		flip = true
-	}
-	for _, card := range p.Hand.Cards {
-		card.Flipped = flip
-	}
-	return flip
+	d.Players = append(d.Players, &player)
 
 }
 
