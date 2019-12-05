@@ -8,11 +8,12 @@ import (
 )
 
 type (
-	// Deck  contains a list of cards.
-	Deck struct {
+	// CardCollection represents any list of cards.
+	// I.E. Deck, Hand etc.
+	CardCollection struct {
 		Cards []*Card
 	}
-	// Card represents an individual playing card.
+	// Card represents an individual card
 	Card struct {
 		Suite   string
 		Rank    int
@@ -41,8 +42,8 @@ var (
 )
 
 // GenDeck method is used to generate a full deck of cards.
-func GenDeck() *Deck {
-	var d Deck
+func GenDeck() *CardCollection {
+	var d CardCollection
 	for _, n := range suites {
 		for _, c := range ranks {
 			newCard := Card{Suite: n, Rank: c}
@@ -53,44 +54,44 @@ func GenDeck() *Deck {
 	return &d
 }
 
-// Card Method pulls a card from a deck of cards.
+// DealCard Method pulls a card from a deck of cards.
 // it will also remove this card from the deck.
-func (d *Deck) Card() (Card, error) {
+func (c *CardCollection) DealCard() (Card, error) {
 	newCard := new(Card)
-	if len(d.Cards) < 1 {
+	if len(c.Cards) < 1 {
 		return *newCard, fmt.Errorf("Cannot return a card from an empty deck")
 	}
 	rand.Seed(time.Now().UTC().UnixNano())
-	index := rand.Intn(len(d.Cards))
+	index := rand.Intn(len(c.Cards))
 	index -= index
 
-	*newCard = *d.Cards[index]
-	d.removeCard(index)
+	*newCard = *c.Cards[index]
+	c.removeCard(index)
 	return *newCard, nil
 }
 
-func (d *Deck) removeCard(i int) error {
-	cardCount := len(d.Cards)
+func (c *CardCollection) removeCard(i int) error {
+	cardCount := len(c.Cards)
 	if cardCount > 0 {
-		d.Cards[i] = d.Cards[cardCount-1]
-		d.Cards = d.Cards[:cardCount-1]
+		c.Cards[i] = c.Cards[cardCount-1]
+		c.Cards = c.Cards[:cardCount-1]
 		return nil
 	}
 	return fmt.Errorf("cannot remove card(card count %v", cardCount)
 }
 
 // Count returns the amount of cards in a deck of cards.
-func (d *Deck) Count() int {
-	return len(d.Cards)
+func (c *CardCollection) Count() int {
+	return len(c.Cards)
 }
 
 // GetHand returns a hand of cards, with card count  of variable h, removing each card it returns
 // from Deck.
-func (d *Deck) GetHand(h int) ([]*Card, error) {
+func (c *CardCollection) GetHand(h int) ([]*Card, error) {
 	var hand []*Card
 	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
-		newCard, err := d.Card()
+		newCard, err := c.DealCard()
 		if err != nil {
 			return hand, fmt.Errorf("Can't provide a hand of cards %v", err)
 		}
@@ -100,9 +101,9 @@ func (d *Deck) GetHand(h int) ([]*Card, error) {
 }
 
 // ForEachCard allows an action to be executed on each card in a Deck.
-// I have not utilized this method yet, and in the future I may remove it. 
-func (d *Deck) ForEachCard(action func(c *Card) error) error {
-	for _, card := range d.Cards {
+// I have not utilized this method yet, and in the future I may remove it.
+func (c *CardCollection) ForEachCard(action func(c *Card) error) error {
+	for _, card := range c.Cards {
 		if err := action(card); err != nil {
 			return err
 		}
@@ -111,11 +112,11 @@ func (d *Deck) ForEachCard(action func(c *Card) error) error {
 }
 
 // Shuffle func shuffles a deck of cards.
-func (d *Deck) Shuffle() {
+func (c *CardCollection) Shuffle() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	for range d.Cards {
-		rand.Shuffle(len(d.Cards), func(i, j int) {
-			d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
+	for range c.Cards {
+		rand.Shuffle(len(c.Cards), func(i, j int) {
+			c.Cards[i], c.Cards[j] = c.Cards[j], c.Cards[i]
 		})
 	}
 }

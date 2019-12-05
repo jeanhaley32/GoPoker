@@ -36,14 +36,14 @@ const (
 )
 
 var (
-	handCount = flag.Int("hand_count", 5, "Number of cards in a single hand. ")
+	handCount = flag.Int("hand_count", 2, "Number of cards in a single hand. ")
 )
 
 func main() {
 	//var err error
 	dealer := deck.GenDealer()
 	dealer.Deck.Shuffle()
-	deck.GetHands(dealer.Deck.Cards)
+	dealer.Deck.Hand(dealer.Deck.Cards)
 
 	// answer := new(string)
 	// for {

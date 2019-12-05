@@ -10,14 +10,16 @@ import (
 type (
 	// Player represents an individual player with name and a hand of cards.
 	Player struct {
-		Name string
-		Hand []*Card
+		Name   string
+		Hand   *CardCollection
+		Dealer *Dealer
 	}
 
 	// Dealer represents the dealer, with a deck of cards, and the table.
 	Dealer struct {
-		Deck  *Deck
-		Table []Card
+		Deck    *CardCollection
+		Players []*Player
+		Table   []Card
 	}
 
 	// Hand represents an individual hand, and its value.
@@ -31,16 +33,16 @@ type (
 
 // GenDealer generates a new Dealer with a fresh deck of cards.
 func GenDealer() Dealer {
-	var newDealer = new(Dealer)
+	var newDealer *Dealer
 	newDealer.Deck = GenDeck()
 	newDealer.Deck.Shuffle()
 	return *newDealer
 }
 
-// GenPlayer generates a new player, asking for their name.
-func GenPlayer() Player {
-	var newPlayer = new(Player)
-
+// GenPlayer generates a new player object tied to a dealer.
+func (d *Dealer) GenPlayer() {
+	var player *Player
+	player.Dealer = d
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf("Players Name?\n")
@@ -49,22 +51,13 @@ func GenPlayer() Player {
 			fmt.Printf("Failed to obtain name: %w\nplease try again.", err)
 			continue
 		} else {
-			newPlayer.Name = name[:len(name)-1]
+			player.Name = name[:len(name)-2]
+			// TO-DO strip spaces from the end of this^^
 			break
 		}
 	}
-	return *newPlayer
+	d.Players = append(d.Players, player)
 
-}
-
-func (p *Player) removeCard(i int) error {
-	cardCount := len(p.Hand)
-	if cardCount > 0 {
-		p.Hand[i] = p.Hand[cardCount-1]
-		p.Hand = p.Hand[:cardCount-1]
-		return nil
-	}
-	return fmt.Errorf("cannot remove card(card count %v", cardCount)
 }
 
 // FlipCards flips all cards in a players deck.
@@ -72,16 +65,13 @@ func (p *Player) removeCard(i int) error {
 // flipped status of the first card.
 func (p *Player) FlipCards() bool {
 	var flip bool
-	if p.Hand[0].Flipped == false {
+	if p.Hand.Cards[0].Flipped == false {
 		flip = true
 	}
-	for _, card := range p.Hand {
+	for _, card := range p.Hand.Cards {
 		card.Flipped = flip
 	}
-	if flip == false {
-		return true
-	}
-	return false
+	return flip
 
 }
 
@@ -132,7 +122,7 @@ func GetHands(c []*Card) ([]Hand, error) {
 
 		testCase := ranks
 		if len(ranks) > 10 {
-			testCase := testcase[0:5]
+			testCase = testCase[0:5]
 		}
 
 		for i := len(testCase); i > 0; i-- {
@@ -154,15 +144,15 @@ func GetHands(c []*Card) ([]Hand, error) {
 				fmt.Printf("%v of %v\n", cardIndex[r], key)
 			}
 		}
-
-		return nil, nil
 	}
+	return nil, nil
 }
 
 func royalFlush(c []int) bool {
 	royalFlush := []int{10, 11, 12, 13, 14}
+	length := len(c)
 	if len(c) > 5 {
-		c = c[2:]
+		c = c[length-5:]
 	}
 	if Equal(c, royalFlush) {
 		return true
@@ -170,21 +160,18 @@ func royalFlush(c []int) bool {
 	return false
 }
 
-func flush(c []int) bool {
-	if len(c) > 5 {
-		c = c[2:]
-	}
-	prev := 0
-	for r := range c {
-		if r-prev != 1 {
+// func flush(c []int) bool {
+// 	// function to detect a flush.
+// 	length := len(c)
+// 	switch {
+// 	case length > 5:
+// 		front := c[0:5]
+// 		tail := c[length-5:]
+// 	}
+// 	return false
+// }
 
-		}
-	}
-
-	return true
-}
-
-// Equal tells whether a and b contain the same elements.
+// Equal tells whether presorted lists a and b contain the same elements.
 // A nil argument is equivalent to an empty slice.
 func Equal(a, b []int) bool {
 	if len(a) != len(b) {
