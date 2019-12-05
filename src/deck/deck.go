@@ -20,6 +20,9 @@ type (
 		Rank    int
 		Flipped bool
 	}
+	cards interface {
+		DisplayCards() error
+	}
 )
 
 var (
@@ -49,23 +52,6 @@ var (
 // to true. This allows you to run genDeck.
 func (c *CardCollection) MakeDeck() {
 	c.isDeck = true
-}
-
-// GenDeck method is used to generate a full deck of cards.
-func (c *CardCollection) GenDeck() error {
-	if c.isDeck {
-		for _, s := range suites {
-			for _, r := range ranks {
-				var newCard Card
-				newCard.Suite = s
-				newCard.Rank = r
-				newCard.Flipped = true
-				c.Cards = append(c.Cards, newCard)
-			}
-		}
-		return nil
-	}
-	return fmt.Errorf("Cannot Generate Deck on non-Deck item")
 }
 
 // DealCard Method pulls a card from a deck of cards.
@@ -101,7 +87,7 @@ func (c *CardCollection) Count() int {
 
 // GetHand returns a hand of cards, with card count  of variable h, removing each card it returns
 // from Deck.
-func (c CardCollection) GetHand(h int) (CardCollection, error) {
+func (c *CardCollection) GetHand(h int) (CardCollection, error) {
 	var hand CardCollection
 	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
@@ -191,5 +177,4 @@ func (c *CardCollection) FlipCards() bool {
 		card.Flipped = flip
 	}
 	return flip
-
 }

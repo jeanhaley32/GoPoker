@@ -19,7 +19,7 @@ type (
 	Dealer struct {
 		Deck    CardCollection
 		Players []*Player
-		Table   []Card
+		Table   *CardCollection
 	}
 
 	// Hand represents an individual hand, and its value.
@@ -31,17 +31,22 @@ type (
 	}
 )
 
-// GenDealer generates a new Dealer with a fresh deck of cards.
-func GenDealer() Dealer {
-	var newDealer Dealer
-	newDealer.Deck.MakeDeck()
-	newDealer.Deck.GenDeck()
-	newDealer.Deck.Shuffle()
-	return newDealer
+// GenDeck generates a dealers Deck of Cards
+func (d *Dealer) GenDeck() {
+	for _, s := range suites {
+		for _, r := range ranks {
+			var newCard Card
+			newCard.Suite = s
+			newCard.Rank = r
+			newCard.Flipped = true
+			d.Deck.Cards = append(d.Deck.Cards, newCard)
+		}
+		d.Deck.Shuffle()
+	}
 }
 
 // GenPlayer generates a new player object tied to a dealer.
-func (d *Dealer) GenPlayer() {
+func (d *Dealer) GenPlayer() *Player {
 	var player Player
 	player.Dealer = d
 	for {
@@ -52,12 +57,14 @@ func (d *Dealer) GenPlayer() {
 			fmt.Printf("Failed to obtain name: %w\nplease try again.", err)
 			continue
 		} else {
-			player.Name = name[:len(name)-2]
+			player.Name = name[:len(name)-1]
+			player.Dealer = d
 			// TO-DO strip spaces from the end of this^^
 			break
 		}
 	}
 	d.Players = append(d.Players, &player)
+	return &player
 
 }
 
