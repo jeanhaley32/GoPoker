@@ -20,9 +20,6 @@ type (
 		Rank    int
 		Flipped bool
 	}
-	cards interface {
-		DisplayCards() error
-	}
 )
 
 var (
@@ -85,9 +82,9 @@ func (c *CardCollection) Count() int {
 	return len(c.Cards)
 }
 
-// GetHand returns a hand of cards, with card count  of variable h, removing each card it returns
+// DealCards returns a hand of cards, with card count  of variable h, removing each card it returns
 // from Deck.
-func (c *CardCollection) GetHand(h int) (CardCollection, error) {
+func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 	var hand CardCollection
 	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
@@ -128,6 +125,7 @@ func (c *Card) Read() string {
 
 // DisplayCards displays cards in players hand as ascii representations.
 func (c *CardCollection) DisplayCards() error {
+	fmt.Println("check")
 	if len(c.Cards) > 10 {
 		return fmt.Errorf("Too many cards to display(%v)", len(c.Cards))
 	}

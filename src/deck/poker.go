@@ -10,16 +10,15 @@ import (
 type (
 	// Player represents an individual player with name and a hand of cards.
 	Player struct {
-		Name   string
-		Hand   *CardCollection
-		Dealer *Dealer
+		Name string
+		Hand CardCollection
 	}
 
 	// Dealer represents the dealer, with a deck of cards, and the table.
 	Dealer struct {
 		Deck    CardCollection
 		Players []*Player
-		Table   *CardCollection
+		Table   CardCollection
 	}
 
 	// Hand represents an individual hand, and its value.
@@ -31,7 +30,7 @@ type (
 	}
 )
 
-// GenDeck generates a dealers Deck of Cards
+// GenDeck populates the dealers deck of cards.
 func (d *Dealer) GenDeck() {
 	for _, s := range suites {
 		for _, r := range ranks {
@@ -48,7 +47,6 @@ func (d *Dealer) GenDeck() {
 // GenPlayer generates a new player object tied to a dealer.
 func (d *Dealer) GenPlayer() *Player {
 	var player Player
-	player.Dealer = d
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Printf("Players Name?\n")
@@ -58,14 +56,14 @@ func (d *Dealer) GenPlayer() *Player {
 			continue
 		} else {
 			player.Name = name[:len(name)-1]
-			player.Dealer = d
 			// TO-DO strip spaces from the end of this^^
 			break
 		}
 	}
+	player.Hand, _ = d.Deck.DealCards(5)
+
 	d.Players = append(d.Players, &player)
 	return &player
-
 }
 
 // GetHands take in a list of cards, and figureds out what hands exist within that list,
