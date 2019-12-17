@@ -21,8 +21,8 @@ type (
 		Table   CardCollection
 	}
 
-	// Hand represents an individual hand, and its value.
-	Hand struct {
+	// HandMatch represents an individual hand, and its value.
+	HandMatch struct {
 		name     string
 		value    int
 		suit     string
@@ -37,8 +37,8 @@ func (d *Dealer) GenDeck() {
 			var newCard Card
 			newCard.Suite = s
 			newCard.Rank = r
-			newCard.Flipped = true
-			d.Deck.Cards = append(d.Deck.Cards, newCard)
+			newCard.isFlipped = true
+			d.Deck.Cards = append(d.Deck.Cards, &newCard)
 		}
 		d.Deck.Shuffle()
 	}
@@ -69,7 +69,7 @@ func (d *Dealer) GenPlayer() *Player {
 // GetHands take in a list of cards, and figureds out what hands exist within that list,
 // return as many matches as it finds as a set fo []hands, each hand contains the name
 // of the matching hand and that hands value.
-func GetHands(c []*Card) ([]Hand, error) {
+func GetHands(c []*Card) ([]HandMatch, error) {
 
 	// sort references
 	//sort.Slice(c, func(i, j int) bool { return c[i].Suite < c[j].Suite })
@@ -88,7 +88,7 @@ func GetHands(c []*Card) ([]Hand, error) {
 		"high card":       1,
 	}
 
-	var hands []Hand
+	var handMatches []HandMatch
 	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
 
 	for _, card := range c {
@@ -122,7 +122,7 @@ func GetHands(c []*Card) ([]Hand, error) {
 
 		switch {
 		case royalFlush(ranks):
-			hands = append(hands, Hand{
+			handMatches = append(handMatches, HandMatch{
 				name:     "royal flush",
 				value:    handValue["royal flush"],
 				suit:     suit,

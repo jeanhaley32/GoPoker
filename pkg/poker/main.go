@@ -46,6 +46,7 @@ func main() {
 	players = append(players, dealer.Players...)
 	for _, player := range players {
 		fmt.Println(player.Name, len(player.Hand.Cards))
+		player.Hand.FlipCards()
 		player.Hand.DisplayCards()
 	}
 }

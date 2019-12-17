@@ -11,14 +11,14 @@ type (
 	// CardCollection represents any list of cards.
 	// I.E. deck, hand etc.
 	CardCollection struct {
-		Cards  []Card
+		Cards  []*Card
 		isDeck bool
 	}
 	// Card represents an individual card
 	Card struct {
-		Suite   string
-		Rank    int
-		Flipped bool
+		Suite     string
+		Rank      int
+		isFlipped bool
 	}
 )
 
@@ -62,7 +62,7 @@ func (c *CardCollection) DealCard() (Card, error) {
 	index := rand.Intn(len(c.Cards))
 	index -= index
 
-	newCard = &c.Cards[index]
+	newCard = c.Cards[index]
 	c.removeCard(index)
 	return *newCard, nil
 }
@@ -92,7 +92,7 @@ func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 		if err != nil {
 			return hand, fmt.Errorf("Can't provide a hand of cards %v", err)
 		}
-		hand.Cards = append(hand.Cards, newCard)
+		hand.Cards = append(hand.Cards, &newCard)
 	}
 	return hand, nil
 }
@@ -101,7 +101,7 @@ func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 // I have not utilized this method yet, and in the future I may remove it.
 func (c *CardCollection) ForEachCard(action func(c *Card) error) error {
 	for _, card := range c.Cards {
-		if err := action(&card); err != nil {
+		if err := action(card); err != nil {
 			return err
 		}
 	}
@@ -136,7 +136,7 @@ func (c *CardCollection) DisplayCards() error {
 			rank := string(num) + " "
 
 			switch {
-			case card.Flipped == true:
+			case card.isFlipped == true:
 				rank = "  "
 				suit = "?"
 			case card.Rank >= 11:
@@ -166,13 +166,9 @@ func (c *CardCollection) DisplayCards() error {
 // FlipCards flips all cards in a players deck.
 // will flip all cards based on the inverse of the
 // flipped status of the first card.
-func (c *CardCollection) FlipCards() bool {
-	var flip bool
-	if c.Cards[0].Flipped == false {
-		flip = true
-	}
+func (c *CardCollection) FlipCards() {
 	for _, card := range c.Cards {
-		card.Flipped = flip
+		fmt.Println("Flipping Card")
+		card.isFlipped = false
 	}
-	return flip
 }
