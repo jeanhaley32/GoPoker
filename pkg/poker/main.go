@@ -41,18 +41,26 @@ var (
 
 func main() {
 	dealer, _ := starterSet()
+	for _, card := range dealer.Deck.Cards {
+		fmt.Println(card.Read())
+	}
+
 	var players []*deck.Player
 
 	players = append(players, dealer.Players...)
 	for _, player := range players {
 		fmt.Println(player.Name, len(player.Hand.Cards))
-		player.Hand.FlipCards()
+		fmt.Println(len(player.Hand.Cards))
+		for _, card := range player.Hand.Cards {
+			fmt.Println(card.Read())
+		}
+		//player.Hand.FlipCards()
 		player.Hand.DisplayCards()
 	}
 }
 
 // users to generate starting dealer, and players.
-func starterSet() (*deck.Dealer, error) {
+func starterSet() (deck.Dealer, error) {
 	splashScreen()
 	var dealer deck.Dealer
 	dealer.GenDeck()
@@ -63,7 +71,7 @@ func starterSet() (*deck.Dealer, error) {
 		fmt.Println("Enter up to 9 players.")
 		sBucket, err := reader.ReadString('\n')
 		if err != nil {
-			return &dealer, fmt.Errorf("Failed to read from stdin:%w", err)
+			return dealer, fmt.Errorf("Failed to read from stdin:%w", err)
 		}
 		pCount, err = strconv.Atoi(sBucket[:len(sBucket)-1])
 		if err != nil {
@@ -86,7 +94,7 @@ func starterSet() (*deck.Dealer, error) {
 		_ = dealer.GenPlayer()
 	}
 	clear()
-	return &dealer, nil
+	return dealer, nil
 }
 
 func clear() {

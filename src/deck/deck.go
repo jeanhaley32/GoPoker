@@ -51,23 +51,18 @@ func (c *CardCollection) MakeDeck() {
 	c.isDeck = true
 }
 
-// DealCard Method pulls a card from a deck of cards.
-// it will also remove this card from the deck.
+// DealCard Methods deals one card form the top of the deck, then deletes that card from the deck.
 func (c *CardCollection) DealCard() (Card, error) {
 	newCard := new(Card)
 	if len(c.Cards) < 1 {
 		return *newCard, fmt.Errorf("Cannot return a card from an empty deck")
 	}
-	rand.Seed(time.Now().UTC().UnixNano())
-	index := rand.Intn(len(c.Cards))
-	index -= index
-
-	newCard = c.Cards[index]
-	c.removeCard(index)
+	newCard = c.Cards[0]
+	c.removeCard(0)
 	return *newCard, nil
 }
 
-func (c CardCollection) removeCard(i int) error {
+func (c *CardCollection) removeCard(i int) error {
 	cardCount := len(c.Cards)
 	if cardCount > 0 {
 		c.Cards[i] = c.Cards[cardCount-1]
@@ -86,7 +81,6 @@ func (c *CardCollection) Count() int {
 // from Deck.
 func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 	var hand CardCollection
-	rand.Seed(time.Now().UTC().UnixNano())
 	for i := 0; i <= h-1; i++ {
 		newCard, err := c.DealCard()
 		if err != nil {
@@ -168,7 +162,6 @@ func (c *CardCollection) DisplayCards() error {
 // flipped status of the first card.
 func (c *CardCollection) FlipCards() {
 	for _, card := range c.Cards {
-		fmt.Println("Flipping Card")
 		card.isFlipped = false
 	}
 }
