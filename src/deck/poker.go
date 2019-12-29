@@ -64,6 +64,11 @@ func init() {
 }
 
 // GenDeck populates the dealers deck of cards.
+// TO-DO: split this into two functions, the deck should
+// generate from the deck library, and then this function
+// should only deal with appending that deck to the dealer, and maybe shuffling it.
+// consider adding shuffling as an optional variable passed to the genDeck function, once
+// it's located within deck.go. Maybe rename this one to genDealerDeck
 func (d *Dealer) GenDeck() {
 	for _, s := range suites {
 		for _, r := range ranks {
