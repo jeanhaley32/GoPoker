@@ -40,27 +40,24 @@ var (
 )
 
 func main() {
-	dealer, _ := starterSet()
-	for _, card := range dealer.Deck.Cards {
+
+	dealer, _ := initDealer()
+	var players []*deck.Player
+	players = append(players, dealer.Players...)
+	for _, card := range players[0].Dealer.Deck.Cards {
 		fmt.Println(card.Read())
 	}
 
-	var players []*deck.Player
-
-	players = append(players, dealer.Players...)
 	for _, player := range players {
-		fmt.Println(player.Name, len(player.Hand.Cards))
-		fmt.Println(len(player.Hand.Cards))
-		for _, card := range player.Hand.Cards {
-			fmt.Println(card.Read())
-		}
-		//player.Hand.FlipCards()
-		player.Hand.DisplayCards()
+		player.FindDuplicates()
 	}
 }
 
-// users to generate starting dealer, and players.
-func starterSet() (deck.Dealer, error) {
+// initDealer initiales the game.
+// calls the splash screen.
+// prompts for player count.
+// initializes a dealer with players, and deck.
+func initDealer() (deck.Dealer, error) {
 	splashScreen()
 	var dealer deck.Dealer
 	dealer.GenDeck()

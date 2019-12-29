@@ -11,8 +11,7 @@ type (
 	// CardCollection represents any list of cards.
 	// I.E. deck, hand etc.
 	CardCollection struct {
-		Cards  []*Card
-		isDeck bool
+		Cards []*Card
 	}
 	// Card represents an individual card
 	Card struct {
@@ -41,15 +40,6 @@ var (
 		14: "ace",
 	}
 )
-
-// TO-DO; reconsider how this works. it may not be the best method for doing this. Maybe
-// utilizing interfaces would be a more robust solution.
-
-// MakeDeck turns a CardCollection into a Deck via switching the isDeck bool
-// to true. This allows you to run genDeck.
-func (c *CardCollection) MakeDeck() {
-	c.isDeck = true
-}
 
 // DealCard Methods deals one card form the top of the deck, then deletes that card from the deck.
 func (c *CardCollection) DealCard() (Card, error) {

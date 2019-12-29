@@ -12,7 +12,8 @@ type (
 	Player struct {
 		Name        string
 		Hand        CardCollection
-		handMatches []HandMatch
+		HandMatches []HandMatch
+		Dealer      *Dealer
 	}
 
 	// Dealer represents the dealer, with a deck of cards, and the table.
@@ -30,6 +31,37 @@ type (
 		highCard int
 	}
 )
+
+var (
+	handValueIndex = make(map[string]int)
+
+	// Creating referenceable strings, to make naming universal.
+	royalFlush    = "royal flush"
+	straightFlush = "straight flush"
+	fourOfaKind   = "four of a kind"
+	fullHouse     = "full house"
+	flush         = "flush"
+	straight      = "straight"
+	threeOfaKind  = "three of a kind"
+	twoPair       = "two pair"
+	onePair       = "one pair"
+	highCard      = "high card"
+)
+
+func init() {
+	handValueIndex = map[string]int{
+		royalFlush:    10,
+		straightFlush: 9,
+		fourOfaKind:   8,
+		fullHouse:     7,
+		flush:         6,
+		straight:      5,
+		threeOfaKind:  4,
+		twoPair:       3,
+		onePair:       2,
+		highCard:      1,
+	}
+}
 
 // GenDeck populates the dealers deck of cards.
 func (d *Dealer) GenDeck() {
@@ -61,120 +93,89 @@ func (d *Dealer) GenPlayer() *Player {
 			break
 		}
 	}
+	player.Dealer = d
 	player.Hand, _ = d.Deck.DealCards(5)
 
 	d.Players = append(d.Players, &player)
 	return &player
 }
 
-// // GetHands take in a list of cards, and figureds out what hands exist within that list,
-// // return as many matches as it finds as a set fo []hands, each hand contains the name
-// // of the matching hand and that hands value.
 // func GetHandMatches(p *Player) ([]HandMatch, error) {
 
 // 	// sort references
 // 	//sort.Slice(c, func(i, j int) bool { return c[i].Suite < c[j].Suite })
 // 	//sort.Slice(c, func(i, j int) bool { return c[i].Rank < c[j].Rank })
 
-// 	handValue := map[string]int{
-// 		"royal flush":     10,
-// 		"straight flush":  9,
-// 		"four of a kind":  8,
-// 		"full house":      7,
-// 		"flush":           6,
-// 		"straight":        5,
-// 		"three of a kind": 4,
-// 		"two pair":        3,
-// 		"one pair":        2,
-// 		"high card":       1,
-// 	}
-
-// 	var handMatches []HandMatch
-// 	suitSorted := p.SuitSorted()
-
-// 	for key, value := range rankCount {
-// 		if rankCount[key] == 2 {
-// 			var match handMatch{
-// 				name: "two pair"
-// 				value    key
-// 				suit     ""
-// 				highCard
-// 			}
-// 		}
-
-// 	for suit, ranks := range suitSorted {
-
-// 		testCase := ranks
-// 		if len(ranks) > 10 {
-// 			testCase = testCase[0:5]
-// 		}
-
-// 		for i := len(testCase); i > 0; i-- {
-
-// 		}
-
-// 		switch {
-// 		case royalFlush(ranks):
-// 			handMatches = append(handMatches, HandMatch{
-// 				name:     "royal flush",
-// 				value:    handValue["royal flush"],
-// 				suit:     suit,
-// 				highCard: ranks[len(ranks)-1],
-// 			})
-// 		}
-
-// 		for key, element := range suitSorted {
-// 			for _, r := range element {
-// 				fmt.Printf("%v of %v\n", cardIndex[r], key)
-// 			}
-// 		}
-// 	}
-// 	return nil, nil
-// }
-
-// func royalFlush(c []int) bool {
-// 	royalFlush := []int{10, 11, 12, 13, 14}
-// 	length := len(c)
-// 	if len(c) > 5 {
-// 		c = c[length-5:]
-// 	}
-// 	if Equal(c, royalFlush) {
-// 		return true
-// 	}
-// 	return false
-// }
-
-// // Equal tells whether presorted lists a and b contain the same elements.
-// // A nil argument is equivalent to an empty slice.
-// func Equal(a, b []int) bool {
-// 	if len(a) != len(b) {
-// 		return false
-// 	}
-// 	for i, v := range a {
-// 		if v != b[i] {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
-
-// func (p *Player)findDuplicates() {
-// 	var dupMap map[string]map[int]int
-// 	var match HandMatch
-
-// 	cards := p.Hand.Cards
-// 	for card := range cards {
-
-// 	}
+// // func (p *Player)royalFlush()  {
+// // 	royalFlush := []int{10, 11, 12, 13, 14}
 
 // }
+
+// Equal tells whether presorted lists a and b contain the same elements.
+// A nil argument is equivalent to an empty slice.
+func Equal(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// FindPairs detects duplicate cards within a players hand.
+func (p *Player) FindPairs() {
+	pHand := p.Hand
+	dHand := p.Dealer.Table
+	pHandMatches := p.HandMatches
+	testHand := append(pHand.Cards, dHand.Cards...)
+	rankMap := make(map[int]int)
+	var matches []HandMatch
+	for _, card := range testHand {
+		rankMap[card.Rank]++
+	}
+	for key, value := range rankMap {
+		switch {
+		case value == 2:
+			handName := fmt.Sprintf("%v(%v)", twoPair, cardIndex[key])
+			handValue := handValueIndex[twoPair] + key
+			match := HandMatch{
+				name:     handName,
+				value:    handValue,
+				highCard: key,
+			}
+			matches = append(matches, match)
+		case value == 3:
+			handName := fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[key])
+			handValue := handValueIndex[twoPair] + key
+			match := HandMatch{
+				name:     handName,
+				value:    handValue,
+				highCard: key,
+			}
+			matches = append(matches, match)
+		case value == 4:
+			handName := fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[key])
+			handValue := handValueIndex[twoPair] + key
+			match := HandMatch{
+				name:     handName,
+				value:    handValue,
+				highCard: key,
+			}
+			matches = append(matches, match)
+		}
+	}
+	pHandMatches = append(pHandMatches, matches...)
+}
 
 // suitSorted returns a map of suit sorted cards from the players hand.
-func (c *Player) suitSorted() map[string][]int {
+func (p *Player) suitSorted() map[string][]int {
 
 	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
 
-	for _, card := range c.Hand.Cards {
+	for _, card := range p.Hand.Cards {
 		switch {
 		case card.Suite == "clubs":
 			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
@@ -189,7 +190,6 @@ func (c *Player) suitSorted() map[string][]int {
 
 	for key, element := range suitSorted {
 		sort.Slice(element, func(i, j int) bool { return suitSorted[key][i] < suitSorted[key][j] })
-
 	}
 
 	return suitSorted
