@@ -15,14 +15,15 @@ type (
 	}
 	// Card represents an individual card
 	Card struct {
-		Suite     string
+		Name      string
+		Suite     int
 		Rank      int
 		isFlipped bool
 	}
 )
 
 var (
-	suites    = [4]string{"diamonds", "spades", "clubs", "hearts"}
+	suites    = [4]int{0, 1, 2, 3}
 	ranks     = [13]int{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 	cardIndex = map[int]string{
 		2:  "two",
@@ -39,24 +40,32 @@ var (
 		13: "king",
 		14: "ace",
 	}
+	suitIndex = map[int]string{
+		0: "clubs",
+		1: "diamonds",
+		2: "hearts",
+		3: "spades",
+	}
 )
 
-// GenDeck returns an unshuffled deck of cards.
+// GenDeck returns an un-shuffled deck of cards.
 func (c *CardCollection) GenDeck(shuffle bool) CardCollection {
 	var deck CardCollection
 	for _, s := range suites {
 		for _, r := range ranks {
-			var newCard Card
-			newCard.Suite = s
-			newCard.Rank = r
+			newCard := Card{
+				Name:  fmt.Sprintf("%v of %v", cardIndex[r], suitIndex[s]),
+				Suite: s,
+				Rank:  r,
+			}
 			newCard.isFlipped = true
 			deck.Cards = append(deck.Cards, newCard)
 		}
+		if shuffle == true {
+			deck.Shuffle()
+			deck.Shuffle()
+		}
 	}
-	if shuffle == true {
-		deck.Shuffle()
-	}
-
 	return deck
 }
 
@@ -111,7 +120,7 @@ func (c *CardCollection) ForEachCard(action func(c *Card) error) error {
 	return nil
 }
 
-// Shuffle func shuffles a deck of cards.
+// Shuffle randomizes the order of cards within a CardCollection.
 func (c *CardCollection) Shuffle() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	for range c.Cards {
@@ -121,12 +130,13 @@ func (c *CardCollection) Shuffle() {
 	}
 }
 
-// Read method returns the card type as a string.
-func (c *Card) Read() string {
-	return fmt.Sprintf("%v of %v", cardIndex[c.Rank], c.Suite)
-}
+// // Read method returns the card type as a string.
+// // rethink the need for this, now that I have each card contain it's own canonical name.
+// func (c *Card) Read() string {
+// 	return fmt.Sprintf("%v of %v", cardIndex[c.Rank], c.Suite)
+// }
 
-// DisplayCards displays cards in players hand as ascii representations.
+// DisplayCards displays each card in players hand as ascii art representations, in a row.
 func (c *CardCollection) DisplayCards() error {
 	if len(c.Cards) > 10 {
 		return fmt.Errorf("Too many cards to display(%v)", len(c.Cards))
@@ -134,7 +144,7 @@ func (c *CardCollection) DisplayCards() error {
 	for i := 0; i < 5; i++ {
 		for _, card := range c.Cards {
 			num := strconv.FormatInt(int64(card.Rank), 10)
-			suit := string(card.Suite[0])
+			suit := string(suitIndex[card.Suite][0])
 			rank := string(num) + " "
 
 			switch {
@@ -165,9 +175,46 @@ func (c *CardCollection) DisplayCards() error {
 	return nil
 }
 
-// FlipCards flips all cards in a players deck.
-// will flip all cards based on the inverse of the
-// flipped status of the first card.
+// DisplayCard displays an ascii Representation of one card.
+func (c *Card) DisplayCard() error {
+	for i := 0; i < 5; i++ {
+
+		num := strconv.FormatInt(int64(c.Rank), 10)
+		suit := string(suitIndex[c.Suite][0])
+		rank := string(num) + " "
+
+		switch {
+		case c.isFlipped == true:
+			rank = "  "
+			suit = "?"
+		case c.Rank >= 11:
+			rank = string(cardIndex[c.Rank][0]) + " "
+		case c.Rank == 10:
+			rank = "10"
+		}
+
+		switch {
+		case i == 0:
+			fmt.Printf(" ******** ")
+		case i == 1:
+			fmt.Printf(" * %v   * ", rank)
+		case i == 2:
+			fmt.Printf(" *   %v  * ", suit)
+		case i == 3:
+			fmt.Printf(" *    %v* ", rank)
+		case i == 4:
+			fmt.Printf(" ******** ")
+		}
+		fmt.Println()
+	}
+	return nil
+}
+
+// FlipCards sets each card in a card collection to
+// isFlipped true/false based on input.
+//
+// true will flip cards, so when the ascii value is displayed, it will
+// show as a card with question marks.
 func (c *CardCollection) FlipCards(d bool) {
 	for i := range c.Cards {
 		if d == false {

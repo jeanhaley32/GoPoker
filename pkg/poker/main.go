@@ -49,8 +49,13 @@ func main() {
 	// }
 
 	for _, player := range players {
-		// player.Hand.FlipCards(false)
+		player.Hand.FlipCards(false)
 		// player.Hand.DisplayCards()
+		for _, card := range player.Hand.Cards {
+			fmt.Printf("%v\n", card.Name)
+			card.DisplayCard()
+		}
+
 		player.FindPairs()
 		fmt.Printf("Matches for player %v:\n", player.Name)
 		for _, match := range player.HandMatches {
@@ -59,7 +64,7 @@ func main() {
 	}
 }
 
-// initDealer initiales the game.
+// initDealer initializes the game.
 // calls the splash screen.
 // prompts for player count.
 // initializes a dealer with players, and deck.
@@ -74,7 +79,7 @@ func initDealer() (deck.Dealer, error) {
 		fmt.Println("Enter up to 5 players.")
 		sBucket, err := reader.ReadString('\n')
 		if err != nil {
-			return dealer, fmt.Errorf("Failed to read from stdin:%w", err)
+			return dealer, fmt.Errorf("Failed to read from stdin:%v", err)
 		}
 		pCount, err = strconv.Atoi(sBucket[:len(sBucket)-1])
 		if err != nil {

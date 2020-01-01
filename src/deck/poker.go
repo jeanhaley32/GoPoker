@@ -76,7 +76,7 @@ func (d *Dealer) GenPlayer() *Player {
 		fmt.Printf("Players Name?\n")
 		name, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Printf("Failed to obtain name: %w\nplease try again.", err)
+			fmt.Printf("Failed to obtain name: %v\nplease try again.", err)
 			continue
 		} else {
 			player.Name = name[:len(name)-1]
@@ -178,19 +178,19 @@ func (p *Player) FindPairs() {
 }
 
 // suitSorted returns a map of suit sorted cards from the players hand.
-func (p *Player) suitSorted() map[string][]int {
+func (p *Player) suitSorted() map[int][]int {
 
-	suitSorted := map[string][]int{"clubs": {}, "diamonds": {}, "hearts": {}, "spades": {}}
+	suitSorted := map[int][]int{0: {}, 1: {}, 2: {}, 3: {}}
 
 	for _, card := range p.Hand.Cards {
 		switch {
-		case card.Suite == "clubs":
+		case card.Suite == 0:
 			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
-		case card.Suite == "diamonds":
+		case card.Suite == 1:
 			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
-		case card.Suite == "hearts":
+		case card.Suite == 2:
 			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
-		case card.Suite == "spades":
+		case card.Suite == 3:
 			suitSorted[card.Suite] = append(suitSorted[card.Suite], card.Rank)
 		}
 	}
