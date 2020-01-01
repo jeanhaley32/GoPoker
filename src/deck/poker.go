@@ -25,10 +25,10 @@ type (
 
 	// HandMatch represents an individual hand, and its value.
 	HandMatch struct {
-		name     string
-		value    int
-		suit     string
-		highCard int
+		Name     string
+		Value    int
+		Suit     string
+		HighCard int
 	}
 )
 
@@ -63,23 +63,9 @@ func init() {
 	}
 }
 
-// GenDeck populates the dealers deck of cards.
-// TO-DO: split this into two functions, the deck should
-// generate from the deck library, and then this function
-// should only deal with appending that deck to the dealer, and maybe shuffling it.
-// consider adding shuffling as an optional variable passed to the genDeck function, once
-// it's located within deck.go. Maybe rename this one to genDealerDeck
-func (d *Dealer) GenDeck() {
-	for _, s := range suites {
-		for _, r := range ranks {
-			var newCard Card
-			newCard.Suite = s
-			newCard.Rank = r
-			newCard.isFlipped = true
-			d.Deck.Cards = append(d.Deck.Cards, &newCard)
-		}
-		d.Deck.Shuffle()
-	}
+// InitDeck Initializes the dealers deck.
+func (d *Dealer) InitDeck() {
+	d.Deck = d.Deck.GenDeck(true)
 }
 
 // GenPlayer generates a new player object tied to a dealer.
@@ -111,11 +97,6 @@ func (d *Dealer) GenPlayer() *Player {
 // 	//sort.Slice(c, func(i, j int) bool { return c[i].Suite < c[j].Suite })
 // 	//sort.Slice(c, func(i, j int) bool { return c[i].Rank < c[j].Rank })
 
-// // func (p *Player)royalFlush()  {
-// // 	royalFlush := []int{10, 11, 12, 13, 14}
-
-// }
-
 // Equal tells whether presorted lists a and b contain the same elements.
 // A nil argument is equivalent to an empty slice.
 func Equal(a, b []int) bool {
@@ -130,11 +111,10 @@ func Equal(a, b []int) bool {
 	return true
 }
 
-// FindPairs detects duplicate cards within a players hand.
+// FindPairs finds two of a kind, three of a kind, four of a kind, and Full House.
 func (p *Player) FindPairs() {
 	pHand := p.Hand
 	dHand := p.Dealer.Table
-	pHandMatches := p.HandMatches
 	testHand := append(pHand.Cards, dHand.Cards...)
 	rankMap := make(map[int]int)
 	var matches []HandMatch
@@ -147,32 +127,54 @@ func (p *Player) FindPairs() {
 			handName := fmt.Sprintf("%v(%v)", twoPair, cardIndex[key])
 			handValue := handValueIndex[twoPair] + key
 			match := HandMatch{
-				name:     handName,
-				value:    handValue,
-				highCard: key,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: key,
 			}
 			matches = append(matches, match)
 		case value == 3:
 			handName := fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[key])
 			handValue := handValueIndex[twoPair] + key
 			match := HandMatch{
-				name:     handName,
-				value:    handValue,
-				highCard: key,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: key,
 			}
 			matches = append(matches, match)
 		case value == 4:
 			handName := fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[key])
 			handValue := handValueIndex[twoPair] + key
 			match := HandMatch{
-				name:     handName,
-				value:    handValue,
-				highCard: key,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: key,
 			}
 			matches = append(matches, match)
 		}
 	}
-	pHandMatches = append(pHandMatches, matches...)
+	if len(testHand) >= 5 && len(matches) >= 2 {
+		fmt.Println("Detected Two Pairs")
+		if (matches[0].Name == twoPair || matches[1].Name == twoPair) && (matches[0].Name == threeOfaKind || matches[1].Name == threeOfaKind) {
+			fmt.Println("Got em")
+			highestValue := 0
+			a := matches[0].Value
+			b := matches[1].Value
+			if a > b {
+				highestValue = a
+			} else {
+				highestValue = b
+			}
+			match := HandMatch{
+				Name:     fmt.Sprintf("%v(%v)(%v)", fullHouse, a, b),
+				HighCard: highestValue,
+				Value:    handValueIndex[fullHouse] + highestValue,
+			}
+			matches = append(matches, match)
+		} else {
+			fmt.Println("not a FullHouse")
+		}
+	}
+	p.HandMatches = append(p.HandMatches, matches...)
 }
 
 // suitSorted returns a map of suit sorted cards from the players hand.

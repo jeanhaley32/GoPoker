@@ -44,12 +44,18 @@ func main() {
 	dealer, _ := initDealer()
 	var players []*deck.Player
 	players = append(players, dealer.Players...)
-	for _, card := range players[0].Dealer.Deck.Cards {
-		fmt.Println(card.Read())
-	}
+	// for _, card := range players[0].Dealer.Deck.Cards {
+	// 	fmt.Println(card.Read())
+	// }
 
 	for _, player := range players {
-		player.FindDuplicates()
+		// player.Hand.FlipCards(false)
+		// player.Hand.DisplayCards()
+		player.FindPairs()
+		fmt.Printf("Matches for player %v:\n", player.Name)
+		for _, match := range player.HandMatches {
+			fmt.Printf("\t%v\n", match.Name)
+		}
 	}
 }
 
@@ -60,12 +66,12 @@ func main() {
 func initDealer() (deck.Dealer, error) {
 	splashScreen()
 	var dealer deck.Dealer
-	dealer.GenDeck()
+	dealer.InitDeck()
 	pCount := 0
 	for {
 		splashScreen()
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Println("Enter up to 9 players.")
+		fmt.Println("Enter up to 5 players.")
 		sBucket, err := reader.ReadString('\n')
 		if err != nil {
 			return dealer, fmt.Errorf("Failed to read from stdin:%w", err)
@@ -76,7 +82,7 @@ func initDealer() (deck.Dealer, error) {
 			pause(2)
 			continue
 		}
-		if pCount <= 9 {
+		if pCount <= 10 {
 			break
 		} else {
 			fmt.Println("Max number of players is nine.")

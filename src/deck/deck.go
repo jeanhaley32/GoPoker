@@ -11,7 +11,7 @@ type (
 	// CardCollection represents any list of cards.
 	// I.E. deck, hand etc.
 	CardCollection struct {
-		Cards []*Card
+		Cards []Card
 	}
 	// Card represents an individual card
 	Card struct {
@@ -41,13 +41,32 @@ var (
 	}
 )
 
+// GenDeck returns an unshuffled deck of cards.
+func (c *CardCollection) GenDeck(shuffle bool) CardCollection {
+	var deck CardCollection
+	for _, s := range suites {
+		for _, r := range ranks {
+			var newCard Card
+			newCard.Suite = s
+			newCard.Rank = r
+			newCard.isFlipped = true
+			deck.Cards = append(deck.Cards, newCard)
+		}
+	}
+	if shuffle == true {
+		deck.Shuffle()
+	}
+
+	return deck
+}
+
 // DealCard Methods deals one card form the top of the deck, then deletes that card from the deck.
 func (c *CardCollection) DealCard() (Card, error) {
 	newCard := new(Card)
 	if len(c.Cards) < 1 {
 		return *newCard, fmt.Errorf("Cannot return a card from an empty deck")
 	}
-	newCard = c.Cards[0]
+	newCard = &c.Cards[0]
 	c.removeCard(0)
 	return *newCard, nil
 }
@@ -76,7 +95,7 @@ func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 		if err != nil {
 			return hand, fmt.Errorf("Can't provide a hand of cards %v", err)
 		}
-		hand.Cards = append(hand.Cards, &newCard)
+		hand.Cards = append(hand.Cards, newCard)
 	}
 	return hand, nil
 }
@@ -85,7 +104,7 @@ func (c *CardCollection) DealCards(h int) (CardCollection, error) {
 // I have not utilized this method yet, and in the future I may remove it.
 func (c *CardCollection) ForEachCard(action func(c *Card) error) error {
 	for _, card := range c.Cards {
-		if err := action(card); err != nil {
+		if err := action(&card); err != nil {
 			return err
 		}
 	}
@@ -109,7 +128,6 @@ func (c *Card) Read() string {
 
 // DisplayCards displays cards in players hand as ascii representations.
 func (c *CardCollection) DisplayCards() error {
-	fmt.Println("check")
 	if len(c.Cards) > 10 {
 		return fmt.Errorf("Too many cards to display(%v)", len(c.Cards))
 	}
@@ -150,8 +168,12 @@ func (c *CardCollection) DisplayCards() error {
 // FlipCards flips all cards in a players deck.
 // will flip all cards based on the inverse of the
 // flipped status of the first card.
-func (c *CardCollection) FlipCards() {
-	for _, card := range c.Cards {
-		card.isFlipped = false
+func (c *CardCollection) FlipCards(d bool) {
+	for i := range c.Cards {
+		if d == false {
+			c.Cards[i].isFlipped = false
+		} else {
+			c.Cards[i].isFlipped = true
+		}
 	}
 }
