@@ -53,7 +53,7 @@ func main() {
 		// player.Hand.DisplayCards()
 		for _, card := range player.Hand.Cards {
 			fmt.Printf("%v\n", card.Name)
-			card.DisplayCard()
+			// card.DisplayCard()
 		}
 
 		player.FindPairs()

@@ -25,10 +25,11 @@ type (
 
 	// HandMatch represents an individual hand, and its value.
 	HandMatch struct {
-		Name     string
-		Value    int
-		Suit     string
-		HighCard int
+		Name      string
+		Value     int
+		Suit      string
+		HighCard  int
+		PairCount int
 	}
 )
 
@@ -121,56 +122,58 @@ func (p *Player) FindPairs() {
 	for _, card := range testHand {
 		rankMap[card.Rank]++
 	}
-	for key, value := range rankMap {
+	for rank, count := range rankMap {
 		switch {
-		case value == 2:
-			handName := fmt.Sprintf("%v(%v)", twoPair, cardIndex[key])
-			handValue := handValueIndex[twoPair] + key
+		case count == 2:
+			handName := fmt.Sprintf("%v(%v)", twoPair, cardIndex[rank])
+			handValue := handValueIndex[twoPair] + rank
 			match := HandMatch{
-				Name:     handName,
-				Value:    handValue,
-				HighCard: key,
+				Name:      handName,
+				Value:     handValue,
+				HighCard:  rank,
+				PairCount: 2,
 			}
 			matches = append(matches, match)
-		case value == 3:
-			handName := fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[key])
-			handValue := handValueIndex[twoPair] + key
+		case count == 3:
+			handName := fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[rank])
+			handValue := handValueIndex[threeOfaKind] + rank
 			match := HandMatch{
-				Name:     handName,
-				Value:    handValue,
-				HighCard: key,
+				Name:      handName,
+				Value:     handValue,
+				HighCard:  rank,
+				PairCount: 3,
 			}
 			matches = append(matches, match)
-		case value == 4:
-			handName := fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[key])
-			handValue := handValueIndex[twoPair] + key
+		case count == 4:
+			handName := fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[rank])
+			handValue := handValueIndex[fourOfaKind] + rank
 			match := HandMatch{
-				Name:     handName,
-				Value:    handValue,
-				HighCard: key,
+				Name:      handName,
+				Value:     handValue,
+				HighCard:  rank,
+				PairCount: 4,
 			}
 			matches = append(matches, match)
 		}
 	}
-	if len(testHand) >= 5 && len(matches) >= 2 {
-		fmt.Println("Detected Two Pairs")
-		if (matches[0].Name == twoPair || matches[1].Name == twoPair) && (matches[0].Name == threeOfaKind || matches[1].Name == threeOfaKind) {
-			fmt.Println("Got em")
+	if (len(matches) >= 2) && (matches[0].PairCount+matches[1].PairCount >= 5) {
+		fmt.Println("potential FullHouse Match")
+		switch {
+		case len(matches) == 2 && matches[0].PairCount == 2 || matches[1].PairCount == 2:
 			highestValue := 0
-			a := matches[0].Value
-			b := matches[1].Value
-			if a > b {
-				highestValue = a
-			} else {
-				highestValue = b
+			fmt.Println("Got em")
+			for _, match := range matches {
+				if match.PairCount == 3 || match.PairCount == 4 {
+					highestValue = match.PairCount
+				}
 			}
 			match := HandMatch{
-				Name:     fmt.Sprintf("%v(%v)(%v)", fullHouse, a, b),
+				Name:     fmt.Sprintf("%v(%v)", fullHouse, highestValue),
 				HighCard: highestValue,
 				Value:    handValueIndex[fullHouse] + highestValue,
 			}
 			matches = append(matches, match)
-		} else {
+		default:
 			fmt.Println("not a FullHouse")
 		}
 	}
