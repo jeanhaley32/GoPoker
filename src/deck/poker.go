@@ -25,11 +25,11 @@ type (
 
 	// HandMatch represents an individual hand, and its value.
 	HandMatch struct {
-		Name      string
-		Value     int
-		Suit      string
-		HighCard  int
-		PairCount int
+		Name     string
+		Value    int
+		Suit     string
+		HighCard int
+		PairType int
 	}
 )
 
@@ -128,59 +128,101 @@ func (p *Player) FindPairs() {
 			handName := fmt.Sprintf("%v(%v)", twoPair, cardIndex[rank])
 			handValue := handValueIndex[twoPair] + rank
 			match := HandMatch{
-				Name:      handName,
-				Value:     handValue,
-				HighCard:  rank,
-				PairCount: 2,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: rank,
+				PairType: 2,
 			}
 			matches = append(matches, match)
 		case count == 3:
 			handName := fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[rank])
 			handValue := handValueIndex[threeOfaKind] + rank
 			match := HandMatch{
-				Name:      handName,
-				Value:     handValue,
-				HighCard:  rank,
-				PairCount: 3,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: rank,
+				PairType: 3,
 			}
 			matches = append(matches, match)
 		case count == 4:
 			handName := fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[rank])
 			handValue := handValueIndex[fourOfaKind] + rank
 			match := HandMatch{
-				Name:      handName,
-				Value:     handValue,
-				HighCard:  rank,
-				PairCount: 4,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: rank,
+				PairType: 4,
 			}
 			matches = append(matches, match)
 		}
 	}
-	if (len(matches) >= 2) && (matches[0].PairCount+matches[1].PairCount >= 5) {
-		fmt.Println("potential FullHouse Match")
+	if (len(matches) >= 2) && (matches[0].PairType+matches[1].PairType >= 5) {
+		noThree := false
+		noTwo := false
+		notAllTwos := true
+		highValue := 0
+		for _, match := range matches {
+			switch {
+			case match.PairType == 2:
+				noTwo = true
+				notAllTwos = false
+			case match.PairType == 3:
+				noThree = true
+				notAllTwos = false
+			}
+		}
 		switch {
-		case len(matches) == 2 && matches[0].PairCount == 2 || matches[1].PairCount == 2:
-			highestValue := 0
-			fmt.Println("Got em")
-			for _, match := range matches {
-				if match.PairCount == 3 || match.PairCount == 4 {
-					highestValue = match.PairCount
+		case len(matches) == 2:
+			if noTwo == true {
+				a := matches[0].HighCard
+				b := matches[1].HighCard
+				if a > b {
+					highValue = a
+				} else {
+					highValue = b
 				}
 			}
+			if noThree == true {
+				for _, match := range matches {
+					if match.PairType == 4 {
+						highValue = match.HighCard
+					}
+				}
+			}
+			handName := fmt.Sprintf("%v(%v)", fullHouse, cardIndex[highValue])
+			handValue := handValueIndex[fullHouse] + highValue
 			match := HandMatch{
-				Name:     fmt.Sprintf("%v(%v)", fullHouse, highestValue),
-				HighCard: highestValue,
-				Value:    handValueIndex[fullHouse] + highestValue,
+				Name:     handName,
+				Value:    handValue,
+				HighCard: highValue,
+				PairType: 0,
 			}
 			matches = append(matches, match)
-		default:
-			fmt.Println("not a FullHouse")
+		case len(matches) == 3:
+			switch {
+			case notAllTwos == true:
+				for _, match := range matches {
+					if match.PairType == 3 {
+						highValue = match.HighCard
+					}
+				}
+				handName := fmt.Sprintf("%v(%v)", fullHouse, cardIndex[highValue])
+				handValue := handValueIndex[fullHouse] + highValue
+				match := HandMatch{
+					Name:     handName,
+					Value:    handValue,
+					HighCard: highValue,
+					PairType: 0,
+				}
+				matches = append(matches, match)
+			}
 		}
 	}
 	p.HandMatches = append(p.HandMatches, matches...)
+
 }
 
-// suitSorted returns a map of suit sorted cards from the players hand.
+// suitSorted returns a map of suit sorted cardCollection from the players hand.
 func (p *Player) suitSorted() map[int][]int {
 
 	suitSorted := map[int][]int{0: {}, 1: {}, 2: {}, 3: {}}
