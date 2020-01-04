@@ -157,17 +157,16 @@ func (p *Player) FindPairs() {
 		}
 	}
 	if len(matches) >= 2 {
-		noThree := false
-		noTwo := false
+		noThree := true
+		noTwo := true
 		notAllTwos := false
 		highValue := 0
 		for _, match := range matches {
 			switch {
 			case match.PairType == 2:
-				noTwo = true
-				notAllTwos = true
+				noTwo = false
 			case match.PairType == 3:
-				noThree = true
+				noThree = false
 				notAllTwos = true
 			}
 		}
@@ -188,6 +187,7 @@ func (p *Player) FindPairs() {
 						highValue = match.HighCard
 					}
 				}
+
 			}
 			handName := fmt.Sprintf("%v(%v)", fullHouse, cardIndex[highValue])
 			handValue := handValueIndex[fullHouse] + highValue

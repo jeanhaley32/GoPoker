@@ -75,9 +75,9 @@ func TestFindPairs(t *testing.T) {
 				PairType: 3,
 			},
 			HandMatch{
-				Name:     fmt.Sprintf("%v(%v)", fullHouse, cardIndex[2]),
-				HighCard: 2,
-				Value:    handValueIndex[fullHouse] + 2,
+				Name:     fmt.Sprintf("%v(%v)", fullHouse, cardIndex[3]),
+				HighCard: 3,
+				Value:    handValueIndex[fullHouse] + 3,
 				PairType: 0,
 			},
 		},
