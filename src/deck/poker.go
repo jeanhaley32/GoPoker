@@ -156,19 +156,19 @@ func (p *Player) FindPairs() {
 			matches = append(matches, match)
 		}
 	}
-	if (len(matches) >= 2) && (matches[0].PairType+matches[1].PairType >= 5) {
+	if len(matches) >= 2 {
 		noThree := false
 		noTwo := false
-		notAllTwos := true
+		notAllTwos := false
 		highValue := 0
 		for _, match := range matches {
 			switch {
 			case match.PairType == 2:
 				noTwo = true
-				notAllTwos = false
+				notAllTwos = true
 			case match.PairType == 3:
 				noThree = true
-				notAllTwos = false
+				notAllTwos = true
 			}
 		}
 		switch {
