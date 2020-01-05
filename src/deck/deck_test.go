@@ -56,6 +56,42 @@ func TestFindPairs(t *testing.T) {
 				Dealer: &dummyDealer,
 				Hand: CardCollection{
 					Cards: []Card{
+						Card{Rank: 3},
+						Card{Rank: 3},
+						Card{Rank: 3},
+						Card{Rank: 3},
+						Card{Rank: 2},
+						Card{Rank: 2},
+						Card{Rank: 2},
+					},
+				},
+			},
+			[]HandMatch{
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[3]),
+					HighCard: 3,
+					Value:    handValueIndex[fourOfaKind] + 3,
+					PairType: 4,
+				},
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[2]),
+					HighCard: 2,
+					Value:    handValueIndex[threeOfaKind] + 2,
+					PairType: 3,
+				},
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", fullHouse, cardIndex[3]),
+					HighCard: 3,
+					Value:    handValueIndex[fullHouse] + 3,
+					PairType: 0,
+				},
+			},
+		},
+		testCase{
+			Player{
+				Dealer: &dummyDealer,
+				Hand: CardCollection{
+					Cards: []Card{
 						Card{Rank: 2},
 						Card{Rank: 2},
 						Card{Rank: 3},
@@ -125,6 +161,42 @@ func TestFindPairs(t *testing.T) {
 					Name:     fmt.Sprintf("%v(%v)", twoPair, cardIndex[14]),
 					HighCard: 14,
 					Value:    handValueIndex[twoPair] + 14,
+					PairType: 2,
+				},
+			},
+		},
+		testCase{
+			Player{
+				Dealer: &dummyDealer,
+				Hand: CardCollection{
+					Cards: []Card{
+						Card{Rank: 14},
+						Card{Rank: 14},
+						Card{Rank: 14},
+						Card{Rank: 3},
+						Card{Rank: 3},
+						Card{Rank: 12},
+						Card{Rank: 4},
+					},
+				},
+			},
+			[]HandMatch{
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", fullHouse, cardIndex[14]),
+					HighCard: 14,
+					Value:    handValueIndex[fullHouse] + 14,
+					PairType: 0,
+				},
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", threeOfaKind, cardIndex[14]),
+					HighCard: 14,
+					Value:    handValueIndex[threeOfaKind] + 14,
+					PairType: 3,
+				},
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", twoPair, cardIndex[3]),
+					HighCard: 3,
+					Value:    handValueIndex[twoPair] + 3,
 					PairType: 2,
 				},
 			},
@@ -225,13 +297,60 @@ func TestFindPairs(t *testing.T) {
 				},
 			},
 		},
+		testCase{
+			Player{
+				Dealer: &dummyDealer,
+				Hand: CardCollection{
+					Cards: []Card{
+						Card{Rank: 5},
+						Card{Rank: 5},
+						Card{Rank: 4},
+						Card{Rank: 6},
+						Card{Rank: 7},
+						Card{Rank: 8},
+						Card{Rank: 9},
+					},
+				},
+			},
+			[]HandMatch{
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", twoPair, cardIndex[5]),
+					HighCard: 5,
+					Value:    handValueIndex[twoPair] + 5,
+					PairType: 2,
+				},
+			},
+		},
+		testCase{
+			Player{
+				Dealer: &dummyDealer,
+				Hand: CardCollection{
+					Cards: []Card{
+						Card{Rank: 5},
+						Card{Rank: 5},
+						Card{Rank: 5},
+						Card{Rank: 5},
+						Card{Rank: 2},
+						Card{Rank: 3},
+						Card{Rank: 4},
+					},
+				},
+			},
+			[]HandMatch{
+				HandMatch{
+					Name:     fmt.Sprintf("%v(%v)", fourOfaKind, cardIndex[5]),
+					HighCard: 5,
+					Value:    handValueIndex[fourOfaKind] + 5,
+					PairType: 4,
+				},
+			},
+		},
 	}
 
-	fmt.Println("Hello roger")
-	for _, c := range cases {
+	for i, c := range cases {
 		c.testPlayer.FindPairs()
 		if !compare(c.testPlayer.HandMatches, c.handMatchSet) {
-			t.Errorf("Test Failed:\n expected(%v)\n got     (%v)\n", c.handMatchSet, c.testPlayer.HandMatches)
+			t.Errorf("Test %v Failed:\n expected(%v)\n got     (%v)\n", i, c.handMatchSet, c.testPlayer.HandMatches)
 		}
 	}
 }
