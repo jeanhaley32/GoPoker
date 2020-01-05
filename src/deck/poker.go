@@ -51,16 +51,16 @@ var (
 
 func init() {
 	handValueIndex = map[string]int{
-		royalFlush:    10,
-		straightFlush: 9,
-		fourOfaKind:   8,
-		fullHouse:     7,
-		flush:         6,
-		straight:      5,
-		threeOfaKind:  4,
-		twoPair:       3,
-		onePair:       2,
-		highCard:      1,
+		royalFlush:    100,
+		straightFlush: 90,
+		fourOfaKind:   80,
+		fullHouse:     70,
+		flush:         60,
+		straight:      50,
+		threeOfaKind:  40,
+		twoPair:       30,
+		onePair:       20,
+		highCard:      10,
 	}
 }
 
@@ -162,17 +162,18 @@ func (p *Player) FindPairs() {
 		notAllTwos := false
 		highValue := 0
 		for _, match := range matches {
-			switch {
-			case match.PairType == 2:
+			if match.PairType == 2 {
 				noTwo = false
-			case match.PairType == 3:
+			}
+			if match.PairType == 3 {
 				noThree = false
 				notAllTwos = true
 			}
 		}
 		switch {
 		case len(matches) == 2:
-			if noTwo == true {
+			switch {
+			case noTwo == true:
 				a := matches[0].HighCard
 				b := matches[1].HighCard
 				if a > b {
@@ -180,10 +181,17 @@ func (p *Player) FindPairs() {
 				} else {
 					highValue = b
 				}
-			}
-			if noThree == true {
+
+			case noThree == true:
 				for _, match := range matches {
 					if match.PairType == 4 {
+						highValue = match.HighCard
+					}
+				}
+
+			case noThree == false && noTwo == false:
+				for _, match := range matches {
+					if match.PairType == 3 {
 						highValue = match.HighCard
 					}
 				}
