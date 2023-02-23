@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
-	"deck"
 	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 	"time"
+
+	"gopoker/deck"
 )
 
 const (
