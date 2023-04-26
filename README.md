@@ -1,5 +1,7 @@
-# GoPoker - Kinda Abandoned. If I ever decided to pick this up again, i'll probably rewrite the whole thing.
+# GoPoker
 
+Kinda Abandoned. If I ever decided to pick this up again, i'll probably rewrite the whole thing.
+___
 This is a toy script for me to practice GoLang, it's not close to complete or usable, and will probably break more as I
 add/remove things. 
 
